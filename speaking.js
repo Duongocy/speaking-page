@@ -4,7 +4,8 @@ const record_button=document.getElementById('recordButton');
 const text_from_voice=document.getElementById('recordText');
 const url_api = 'https://learning-english-api-o1yh.onrender.com';
 let textArray=[];
-load_practice_from_database('1755932608244');
+let sound_ok = new Audio("sound-ok.mp3"); // đường dẫn file âm thanh
+let sound_ng = new Audio("sound-ng.mp3"); // đường dẫn file âm thanh
 load_lesson_list_from_database();
 
     
@@ -152,6 +153,10 @@ function kiem_tra_ket_qua_doc(parentId, text) {
     children.forEach(child => {
       if (child.textContent.trim() === text) {
         child.remove();
+        sound_ok.play();
+      }
+      else{
+        sound_ng.play();
       }
     });
   }

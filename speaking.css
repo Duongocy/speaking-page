@@ -27,7 +27,7 @@ body{
 }
 
 .lesson-list-container{
-  width:30%;
+  width:25%;
   height:90%;
   display: flex;
   flex-direction: column;
@@ -39,6 +39,12 @@ body{
   -ms-overflow-style: none; /* ẩn trên IE/Edge cũ */
   box-sizing: border-box;
   margin:auto;
+  opacity: 0.1;          /* bình thường mờ mờ */
+  transition: opacity 0.3s ease; /* hiệu ứng mượt */
+}
+.lesson-list-container:hover{
+  opacity: 1;          /* bình thường mờ mờ */
+  transition: opacity 0.3s ease; /* hiệu ứng mượt */
 }
 .practice-container{
   width:50%;
@@ -55,7 +61,7 @@ body{
   margin:auto;
 }
 .voice-record-container{
-  width:20%;
+  width:25%;
   height:90%;
   display: flex;
   flex-direction: column;
