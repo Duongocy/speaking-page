@@ -149,14 +149,13 @@ record_button.onclick = async function () {
 function kiem_tra_ket_qua_doc(parentId, text) {
     const parent = document.getElementById(parentId);
     const children = parent.querySelectorAll("div");
-
+    let confirm=true;
     children.forEach(child => {
-      if (child.textContent.trim() === text) {
+      if (child.textContent.trim() === text&&confirm) {
         child.remove();
         sound_ok.play();
-      }
-      else{
-        sound_ng.play();
+        confirm = false;
+        return;
       }
     });
   }
