@@ -165,27 +165,23 @@ record_button.onclick = async function () {
     record_button.style.backgroundColor = "#e70826ff";
 
   } else if (mediaRecorder.state === "recording") {
-  console.log(">> Đang dừng ghi âm...");
-  mediaRecorder.stop();
-  console.log(">> mediaRecorder.stop() called, state:", mediaRecorder.state);
+    console.log(">> Đang dừng ghi âm...");
+    mediaRecorder.stop();
+    console.log(">> mediaRecorder.stop() called, state:", mediaRecorder.state);
 
-  // Ép tắt mic ngay
-  if (stream) {
-    stream.getTracks().forEach(track => {
-      console.log("   - track stopped:", track.kind);
-      track.stop();
-    });
-    stream = null;
+    // Ép tắt mic ngay (phòng trường hợp onstop không chạy)
+    if (stream) {
+      console.log(">> Ép stop micro ngay khi nhấn nút...");
+      stream.getTracks().forEach(track => {
+        console.log("   - track stopped:", track.kind);
+        track.stop();
+      });
+      stream = null;
+    }
+
+    stopRecording();
+    record_button.style.backgroundColor = "#2df705";
   }
-
-  // cleanup mediaRecorder để browser release mic hoàn toàn
-  mediaRecorder.ondataavailable = null;
-  mediaRecorder.onstop = null;
-  mediaRecorder = null;
-
-  stopRecording();
-  record_button.style.backgroundColor = "#2df705";
-}
 };
 function kiem_tra_ket_qua_doc(parentId, text) {
     const parent = document.getElementById(parentId);
