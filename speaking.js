@@ -95,40 +95,62 @@ async function load_lesson_list_from_database(){
     });
 }
 ////////////////////////////////////voice recognize////////////////////////////////////
-let mediaRecorder;//biến để lưu đối tượng mediarecorder dùng để ghi âm
-let chunks = [];//mảng chứa các mẩu nhỏ của âm thanh trong suốt quá trình ghi âm
-let stream; // giữ thông tin của mic đang sử dụng để có thể tắt mic sau khi dùng xong
+let mediaRecorder; // đối tượng MediaRecorder
+let chunks = [];   // mảng chứa dữ liệu âm thanh
+let stream;        // giữ stream mic
+
 record_button.onclick = async function () {
-  if (!mediaRecorder || mediaRecorder.state === "inactive"&&(!audioContext || audioContext.state === "closed")) { //nếu chưa đang ghi âm hoặc trạng thái của biến mediarecorder là không hoạt động thì sẽ bắt đầu ghi âm
-    // xin quyền micro
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true }); //xin quyền truy cập micro
-    mediaRecorder = new MediaRecorder(stream);//tạo 1 đối tượng ghi âm mới nếu được cấp quyền truy cập
-    mediaRecorder.ondataavailable = function (e) { //nếu phát hiện có âm thanh (do quá trình ghi âm) phát sinh trong biến mediarecorder thì đưa nó vào mảng chunks
-      chunks.push(e.data); //cần khai báo sự kiện này trước để sẵn sàng trước khi bật mic (mediaRecorder.start();) để không bỏ lỡ bất kì mẫu dữ liệu nào 
+  console.log("===> record_button clicked");
+  console.log("mediaRecorder:", mediaRecorder?.state, "stream:", stream);
+
+  // Nếu chưa ghi âm
+  if (!mediaRecorder || mediaRecorder.state === "inactive") {
+    console.log(">> Bắt đầu xin quyền micro...");
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    console.log(">> Stream lấy được:", stream);
+
+    mediaRecorder = new MediaRecorder(stream);
+    console.log(">> MediaRecorder created, state:", mediaRecorder.state);
+
+    // Khi có dữ liệu
+    mediaRecorder.ondataavailable = e => {
+      chunks.push(e.data);
+      console.log(">> Data available, chunks length:", chunks.length);
     };
 
-    mediaRecorder.onstop = async function () {//hàm thực hiện khi có sự kiện việc ghi âm kết thúc (nhờ nhấn nút)
-      const blob = new Blob(chunks, { type: "audio/webm" }); //gom các mẩu âm thanh trong mảng chunks lại thành 1 file tên là blob ddihnj dạng đuôi là webm
-      chunks = []; //xóa mảng chunks để còn sử dụng cho lần ghi âm sau 
+    // Khi stop
+    mediaRecorder.onstop = async () => {
+      console.log(">> mediaRecorder onstop fired");
+      const blob = new Blob(chunks, { type: "audio/webm" });
+      chunks = [];
+      console.log(">> Blob created, size:", blob.size);
 
-      const formData = new FormData();//tạo 1 form mới để chuẩn bị cho việc gởi dữ liệu âm thanh lên sever 
-      formData.append("audio", blob, "speech.webm"); //thêm dữ liệu âm thanh (file blob) vào form và đặt tên  trường dữ liệu là audio, dữ liệu được thêm vào là blob
+      const formData = new FormData();
+      formData.append("audio", blob, "speech.webm");
 
       try {
-        const res = await fetch("https://voice-recognize.onrender.com/stt", {  //gởi dữ liệu lên api
+        console.log(">> Gửi audio lên server...");
+        const res = await fetch("https://voice-recognize.onrender.com/stt", {
           method: "POST",
           body: formData
         });
-        const data = await res.json(); //chờ nhận lại dữ liệu trả về từ api
-        text_from_voice.innerText = String(data.text).charAt(0).toUpperCase() + String(data.text).slice(1) || data.error || "(no speech)"; //lấy ra text từ dữ liệu trả về và hiển thị lên
-        console.log(String(data.text).charAt(0).toUpperCase() + String(data.text).slice(1));
-        kiem_tra_ket_qua_doc('practiceContainer',String(data.text).charAt(0).toUpperCase() + String(data.text).slice(1));
+        const data = await res.json();
+        console.log(">> Server trả về:", data);
+
+        let text = data.text 
+          ? String(data.text).charAt(0).toUpperCase() + String(data.text).slice(1)
+          : data.error || "(no speech)";
+
+        text_from_voice.innerText = text;
+        kiem_tra_ket_qua_doc("practiceContainer", text);
       } catch (err) {
-        text_from_voice.innerText = "Error: " + err.message; // lỗi thì báo        
+        console.error(">> Fetch error:", err);
+        text_from_voice.innerText = "Error: " + err.message;
       } finally {
-        // tắt mic sau khi xử lý xong
         if (stream) {
-          stream.getTracks().forEach(function (track) {
+          console.log(">> Đang tắt micro...");
+          stream.getTracks().forEach(track => {
+            console.log("   - track stopped:", track.kind);
             track.stop();
           });
           stream = null;
@@ -137,15 +159,33 @@ record_button.onclick = async function () {
     };
 
     mediaRecorder.start();
-    console.log("Đang nghe...");
-    startRecording(); //hieu ung vong tron
-    record_button.style.backgroundColor="#e70826ff";
+    console.log(">> Ghi âm bắt đầu, state:", mediaRecorder.state);
+
+    startRecording(); // hiệu ứng vòng tròn
+    record_button.style.backgroundColor = "#e70826ff";
+
   } else if (mediaRecorder.state === "recording") {
-    mediaRecorder.stop();
-    console.log("Đang xử lý..");
-    stopRecording();
-    record_button.style.backgroundColor="#2df705";
+  console.log(">> Đang dừng ghi âm...");
+  mediaRecorder.stop();
+  console.log(">> mediaRecorder.stop() called, state:", mediaRecorder.state);
+
+  // Ép tắt mic ngay
+  if (stream) {
+    stream.getTracks().forEach(track => {
+      console.log("   - track stopped:", track.kind);
+      track.stop();
+    });
+    stream = null;
   }
+
+  // cleanup mediaRecorder để browser release mic hoàn toàn
+  mediaRecorder.ondataavailable = null;
+  mediaRecorder.onstop = null;
+  mediaRecorder = null;
+
+  stopRecording();
+  record_button.style.backgroundColor = "#2df705";
+}
 };
 function kiem_tra_ket_qua_doc(parentId, text) {
     const parent = document.getElementById(parentId);
