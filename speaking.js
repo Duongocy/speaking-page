@@ -168,7 +168,7 @@ record_button.onclick = async function () {
     console.log(">> Đang dừng ghi âm...");
     mediaRecorder.stop();
     console.log(">> mediaRecorder.stop() called, state:", mediaRecorder.state);
-
+    
     // Ép tắt mic ngay (phòng trường hợp onstop không chạy)
     if (stream) {
       console.log(">> Ép stop micro ngay khi nhấn nút...");
@@ -208,6 +208,7 @@ let audioContext, analyser, source, dataArray;
 let rippleInterval;
 
 async function startRecording() {
+  dataArray=[];
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   audioContext = new AudioContext();
   analyser = audioContext.createAnalyser();
@@ -222,16 +223,16 @@ async function startRecording() {
     let sum = 0;
     for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
     let volume = sum / dataArray.length;
-
-    if (volume > 20) { // chỉ tạo ripple khi có tiếng
+    console.log("Volume : ",volume);
+    if (volume > 30) { // chỉ tạo ripple khi có tiếng
       const ripple = document.createElement("span");
       ripple.className = "ripple";
       document.getElementById("recordButtonContainer").appendChild(ripple);
-      setTimeout(() => ripple.remove(), 1000);
+      setTimeout(() => ripple.remove(), 500);
     }
   }
 
-  rippleInterval = setInterval(createRipple, 200);
+  rippleInterval = setInterval(createRipple, 100);
 }
 
 function stopRecording() {
