@@ -99,11 +99,10 @@ let mediaRecorder;//biến để lưu đối tượng mediarecorder dùng để 
 let chunks = [];//mảng chứa các mẩu nhỏ của âm thanh trong suốt quá trình ghi âm
 let stream; // giữ thông tin của mic đang sử dụng để có thể tắt mic sau khi dùng xong
 record_button.onclick = async function () {
-  if (!mediaRecorder || mediaRecorder.state === "inactive") { //nếu chưa đang ghi âm hoặc trạng thái của biến mediarecorder là không hoạt động thì sẽ bắt đầu ghi âm
+  if (!mediaRecorder || mediaRecorder.state === "inactive"&&(!audioContext || audioContext.state === "closed")) { //nếu chưa đang ghi âm hoặc trạng thái của biến mediarecorder là không hoạt động thì sẽ bắt đầu ghi âm
     // xin quyền micro
     stream = await navigator.mediaDevices.getUserMedia({ audio: true }); //xin quyền truy cập micro
     mediaRecorder = new MediaRecorder(stream);//tạo 1 đối tượng ghi âm mới nếu được cấp quyền truy cập
-
     mediaRecorder.ondataavailable = function (e) { //nếu phát hiện có âm thanh (do quá trình ghi âm) phát sinh trong biến mediarecorder thì đưa nó vào mảng chunks
       chunks.push(e.data); //cần khai báo sự kiện này trước để sẵn sàng trước khi bật mic (mediaRecorder.start();) để không bỏ lỡ bất kì mẫu dữ liệu nào 
     };
@@ -139,10 +138,12 @@ record_button.onclick = async function () {
 
     mediaRecorder.start();
     console.log("Đang nghe...");
+    startRecording(); //hieu ung vong tron
     record_button.style.backgroundColor="#e70826ff";
   } else if (mediaRecorder.state === "recording") {
     mediaRecorder.stop();
     console.log("Đang xử lý..");
+    stopRecording();
     record_button.style.backgroundColor="#2df705";
   }
 };
@@ -152,10 +153,10 @@ function kiem_tra_ket_qua_doc(parentId, text) {
     let confirm=true;
     children.forEach(child => {
       if (child.textContent.trim() === text&&confirm) {
-        child.remove();
+        child.classList.add("fade-out");
+        setTimeout(() => child.remove(), 500); // delay bằng transition
         sound_ok.play();
         confirm = false;
-        return;
       }
     });
   }
@@ -165,4 +166,41 @@ function speak(text) {
     utterance.rate = 0.9;     // đọc hơi chậm lại
     utterance.pitch = 1.2;    // giọng cao một xíu
     speechSynthesis.speak(utterance);
+}
+
+let audioContext, analyser, source, dataArray;
+let rippleInterval;
+
+async function startRecording() {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  audioContext = new AudioContext();
+  analyser = audioContext.createAnalyser();
+  source = audioContext.createMediaStreamSource(stream);
+  source.connect(analyser);
+  analyser.fftSize = 256;
+  dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+  // tạo ripple theo nhịp voice
+  function createRipple() {
+    analyser.getByteFrequencyData(dataArray);
+    let sum = 0;
+    for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+    let volume = sum / dataArray.length;
+
+    if (volume > 20) { // chỉ tạo ripple khi có tiếng
+      const ripple = document.createElement("span");
+      ripple.className = "ripple";
+      document.getElementById("recordButtonContainer").appendChild(ripple);
+      setTimeout(() => ripple.remove(), 1000);
+    }
+  }
+
+  rippleInterval = setInterval(createRipple, 200);
+}
+
+function stopRecording() {
+  if (audioContext) {
+    audioContext.close();
+  }
+  clearInterval(rippleInterval);
 }
