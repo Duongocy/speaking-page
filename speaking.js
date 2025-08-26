@@ -224,7 +224,7 @@ async function startRecording() {
     for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
     let volume = sum / dataArray.length;
     console.log("Volume : ",volume);
-    if (volume > 30) { // chỉ tạo ripple khi có tiếng
+    if (volume > 70) { // chỉ tạo ripple khi có tiếng
       const ripple = document.createElement("span");
       ripple.className = "ripple";
       document.getElementById("recordButtonContainer").appendChild(ripple);
