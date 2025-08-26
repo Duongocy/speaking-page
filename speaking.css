@@ -33,7 +33,7 @@ body{
   flex-direction: column;
   gap: 10px;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   overflow-y: auto;
   scrollbar-width: none;  /* ẩn scrollbar trên Firefox */
   -ms-overflow-style: none; /* ẩn trên IE/Edge cũ */
@@ -53,7 +53,7 @@ body{
   flex-direction: column;
   gap: 10px;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   overflow-y: auto;
   scrollbar-width: none;  /* ẩn scrollbar trên Firefox */
   -ms-overflow-style: none; /* ẩn trên IE/Edge cũ */
