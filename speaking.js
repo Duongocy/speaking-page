@@ -223,16 +223,16 @@ async function startRecording() {
     let sum = 0;
     for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
     let volume = sum / dataArray.length;
-    // console.log("Volume : ",volume);
-    if (volume > 50) { // chỉ tạo ripple khi có tiếng
+    console.log("Volume : ",volume);
+    if (volume > 30) { // chỉ tạo ripple khi có tiếng
       const ripple = document.createElement("span");
       ripple.className = "ripple";
       document.getElementById("recordButtonContainer").appendChild(ripple);
-      setTimeout(() => ripple.remove(), 200);
+      setTimeout(() => ripple.remove(), 500);
     }
   }
 
-  rippleInterval = setInterval(createRipple, 100);
+  rippleInterval = setInterval(createRipple, 200);
 }
 
 function stopRecording() {
