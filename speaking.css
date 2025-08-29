@@ -76,9 +76,9 @@ body{
       border: 5px solid green;
       border-radius: 20px;
       padding: 15px 25px;
-      color: white;
+      color: rgb(57, 2, 2);
       font-size: 24px;
-      font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+      font-family:'Times New Roman', Times, serif;
       opacity: 0;
       transform: translateX(-50px);
       animation: slideIn 0.6s ease forwards;
@@ -92,7 +92,7 @@ body{
       padding: 15px 25px;
       color: white;
       font-size: 24px;
-      font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+      font-family:Arial, Helvetica, sans-serif;
       opacity: 0;
       transform: translateX(-50px);
       animation: slideIn 0.6s ease forwards;

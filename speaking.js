@@ -2,7 +2,8 @@ const practice_container = document.getElementById('practiceContainer');
 const lesson_list_container = document.getElementById('lessonListContainer');
 const record_button=document.getElementById('recordButton');
 const text_from_voice=document.getElementById('recordText');
-const url_api = 'https://english-learning-api-wp3l.onrender.com';
+const url_api = 'https://english-learning-api-qof2.onrender.com';
+// const url_api = 'http://localhost:3003';
 let textArray=[];
 let sound_ok = new Audio("sound-ok.mp3"); // đường dẫn file âm thanh
 let sound_ng = new Audio("sound-ng.mp3"); // đường dẫn file âm thanh
@@ -16,7 +17,7 @@ function display_practice_list(data, delay,classname) {
           const div = document.createElement('div');
           div.className = classname;
           div.style.animationDelay = `${index * 0.1}s`; // nhỏ delay cho mượt
-          div.textContent = element.word_sentence;
+          div.textContent = element.word_sentence +' -- '+element.vi;
           practice_container.appendChild(div);
         }, index * delay);
       });
@@ -188,7 +189,7 @@ function kiem_tra_ket_qua_doc(parentId, text) {
     const children = parent.querySelectorAll("div");
     let confirm=true;
     children.forEach(child => {
-      if (child.textContent.trim() === text&&confirm) {
+      if (child.textContent.split("--")[0].trim() === text&&confirm) {
         child.classList.add("fade-out");
         setTimeout(() => child.remove(), 500); // delay bằng transition
         sound_ok.play();
