@@ -71,6 +71,7 @@ body{
 }
 
 .practice-item {
+      cursor: pointer;
       width:80%;
       background-color: #32CD32; /* xanh lá */
       border: 5px solid green;

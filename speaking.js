@@ -18,6 +18,9 @@ function display_practice_list(data, delay,classname) {
           div.className = classname;
           div.style.animationDelay = `${index * 0.1}s`; // nhỏ delay cho mượt
           div.textContent = element.word_sentence +' -- '+element.vi;
+          div.addEventListener("click", function () { 
+            speak(element.word_sentence);
+        })
           practice_container.appendChild(div);
         }, index * delay);
       });
