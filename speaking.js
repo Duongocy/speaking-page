@@ -195,8 +195,8 @@ function startRecording(stream) {
       ripple.className = "ripple";
       document.getElementById("recordButtonContainer").appendChild(ripple);
       ripple.style.backgroundColor = `hsl(${volume % 360}, 100%, 80%)`;
-      ripple.style.width = `${volume}px`;
-      ripple.style.height = `${volume}px`;
+      ripple.style.width = `${volume*2}px`;
+      ripple.style.height = `${volume*2}px`;
       setTimeout(() => ripple.remove(), 70);
     }
   }
