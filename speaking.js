@@ -2,6 +2,7 @@ const practice_container = document.getElementById('practiceContainer');
 const lesson_list_container = document.getElementById('lessonListContainer');
 const record_button=document.getElementById('recordButton');
 const text_from_voice=document.getElementById('recordText');
+const record_button_container = document.getElementById('recordButtonContainer');
 const url_api = 'https://english-learning-api-qof2.onrender.com';
 // const url_api = 'http://localhost:3003';
 let textArray=[];
@@ -102,91 +103,130 @@ async function load_lesson_list_from_database(){
 let mediaRecorder; // đối tượng MediaRecorder
 let chunks = [];   // mảng chứa dữ liệu âm thanh
 let stream;        // giữ stream mic
+let isRecording = false;
 
+// Khi nhấn nút
 record_button.onclick = async function () {
-  console.log("===> record_button clicked");
-  console.log("mediaRecorder:", mediaRecorder?.state, "stream:", stream);
+  console.log("===> record_button clicked, isRecording:", isRecording);
 
-  // Nếu chưa ghi âm
-  if (!mediaRecorder || mediaRecorder.state === "inactive") {
-    console.log(">> Bắt đầu xin quyền micro...");
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    console.log(">> Stream lấy được:", stream);
+  if (!isRecording) {
+    // ---- START RECORD ----
+    try {
+      console.log(">> Xin quyền micro...");
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-    mediaRecorder = new MediaRecorder(stream);
-    console.log(">> MediaRecorder created, state:", mediaRecorder.state);
+      mediaRecorder = new MediaRecorder(stream);
+      isRecording = true;
+      record_button.style.backgroundColor = "#e70826ff";
 
-    // Khi có dữ liệu
-    mediaRecorder.ondataavailable = e => {
-      chunks.push(e.data);
-      console.log(">> Data available, chunks length:", chunks.length);
-    };
+      // Khi có data
+      mediaRecorder.ondataavailable = e => {
+        chunks.push(e.data);
+      };
 
-    // Khi stop
-    mediaRecorder.onstop = async () => {
-      console.log(">> mediaRecorder onstop fired");
-      const blob = new Blob(chunks, { type: "audio/webm" });
-      chunks = [];
-      console.log(">> Blob created, size:", blob.size);
+      // Khi stop
+      mediaRecorder.onstop = async () => {
+        console.log(">> Ghi âm dừng, tạo blob...");
+        const blob = new Blob(chunks, { type: "audio/webm" });
+        chunks = [];
 
-      const formData = new FormData();
-      formData.append("audio", blob, "speech.webm");
+        const formData = new FormData();
+        formData.append("audio", blob, "speech.webm");
 
-      try {
-        console.log(">> Gửi audio lên server...");
-        const res = await fetch("https://voice-recognize.onrender.com/stt", {
-          method: "POST",
-          body: formData
-        });
-        const data = await res.json();
-        console.log(">> Server trả về:", data);
-
-        let text = data.text 
-          ? String(data.text).charAt(0).toUpperCase() + String(data.text).slice(1)
-          : data.error || "(no speech)";
-
-        text_from_voice.innerText = text;
-        kiem_tra_ket_qua_doc("practiceContainer", text);
-      } catch (err) {
-        console.error(">> Fetch error:", err);
-        text_from_voice.innerText = "Error: " + err.message;
-      } finally {
-        if (stream) {
-          console.log(">> Đang tắt micro...");
-          stream.getTracks().forEach(track => {
-            console.log("   - track stopped:", track.kind);
-            track.stop();
+        try {
+          console.log(">> Gửi audio lên server...");
+          const res = await fetch("https://voice-recognize.onrender.com/stt", {
+            method: "POST",
+            body: formData
           });
-          stream = null;
+          const data = await res.json();
+
+          let text = data.text 
+            ? String(data.text).charAt(0).toUpperCase() + String(data.text).slice(1)
+            : data.error || "(no speech)";
+          text_from_voice.innerText = text;
+
+          kiem_tra_ket_qua_doc("practiceContainer", text);
+        } catch (err) {
+          console.error(">> Fetch error:", err);
+          text_from_voice.innerText = "Error: " + err.message;
+        } finally {
+          cleanup();
         }
-      }
-    };
+      };
 
-    mediaRecorder.start();
-    console.log(">> Ghi âm bắt đầu, state:", mediaRecorder.state);
+      mediaRecorder.start();
+      console.log(">> Ghi âm bắt đầu...");
+      startRecording(stream);
 
-    startRecording(); // hiệu ứng vòng tròn
-    record_button.style.backgroundColor = "#e70826ff";
-
-  } else if (mediaRecorder.state === "recording") {
-    console.log(">> Đang dừng ghi âm...");
-    mediaRecorder.stop();
-    console.log(">> mediaRecorder.stop() called, state:", mediaRecorder.state);
-    
-    // Ép tắt mic ngay (phòng trường hợp onstop không chạy)
-    if (stream) {
-      console.log(">> Ép stop micro ngay khi nhấn nút...");
-      stream.getTracks().forEach(track => {
-        console.log("   - track stopped:", track.kind);
-        track.stop();
-      });
-      stream = null;
+    } catch (err) {
+      console.error(">> Không lấy được micro:", err);
+      text_from_voice.innerText = "Micro permission denied!";
     }
 
+  } else {
+    // ---- STOP RECORD ----
+    console.log(">> Stop record...");
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+      mediaRecorder.stop();
+    }
     stopRecording();
     record_button.style.backgroundColor = "#2df705";
   }
 };
+
+// Hiệu ứng vòng ripple
+function startRecording(stream) {
+  audioContext = new AudioContext();
+  analyser = audioContext.createAnalyser();
+  source = audioContext.createMediaStreamSource(stream);
+  source.connect(analyser);
+
+  analyser.fftSize = 256;
+  dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+  function createRipple() {
+    analyser.getByteFrequencyData(dataArray);
+    let sum = dataArray.reduce((a, b) => a + b, 0);
+    let volume = sum / dataArray.length;
+
+    if (volume > 10) {
+      const ripple = document.createElement("span");
+      ripple.className = "ripple";
+      document.getElementById("recordButtonContainer").appendChild(ripple);
+      ripple.style.backgroundColor = `hsl(${volume % 360}, 100%, 80%)`;
+      ripple.style.width = `${volume}px`;
+      ripple.style.height = `${volume}px`;
+      setTimeout(() => ripple.remove(), 70);
+    }
+  }
+
+  rippleInterval = setInterval(createRipple, 70);
+}
+
+function stopRecording() {
+  if (audioContext) {
+    audioContext.close();
+    audioContext = null;
+  }
+  clearInterval(rippleInterval);
+  rippleInterval = null;
+}
+
+// Cleanup toàn bộ
+function cleanup() {
+  console.log(">> Cleanup...");
+  stopRecording();
+
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+
+  mediaRecorder = null;
+  isRecording = false;
+  record_button.style.backgroundColor = "#2df705";
+}
 function kiem_tra_ket_qua_doc(parentId, text) {
     const parent = document.getElementById(parentId);
     const children = parent.querySelectorAll("div");
@@ -211,37 +251,3 @@ function speak(text) {
 let audioContext, analyser, source, dataArray;
 let rippleInterval;
 
-async function startRecording() {
-  dataArray=[];
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  audioContext = new AudioContext();
-  analyser = audioContext.createAnalyser();
-  source = audioContext.createMediaStreamSource(stream);
-  source.connect(analyser);
-  analyser.fftSize = 256;
-  dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-  // tạo ripple theo nhịp voice
-  function createRipple() {
-    analyser.getByteFrequencyData(dataArray);
-    let sum = 0;
-    for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
-    let volume = sum / dataArray.length;
-    console.log("Volume : ",volume);
-    if (volume > 30) { // chỉ tạo ripple khi có tiếng
-      const ripple = document.createElement("span");
-      ripple.className = "ripple";
-      document.getElementById("recordButtonContainer").appendChild(ripple);
-      setTimeout(() => ripple.remove(), 500);
-    }
-  }
-
-  rippleInterval = setInterval(createRipple, 200);
-}
-
-function stopRecording() {
-  if (audioContext) {
-    audioContext.close();
-  }
-  clearInterval(rippleInterval);
-}
