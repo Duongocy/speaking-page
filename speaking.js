@@ -3,7 +3,7 @@ const lesson_list_container = document.getElementById('lessonListContainer');
 const record_button=document.getElementById('recordButton');
 const text_from_voice=document.getElementById('recordText');
 const record_button_container = document.getElementById('recordButtonContainer');
-const url_api = 'https://english-learning-api-qof2.onrender.com';
+const url_api = 'https://english-learning-api-jci9.onrender.com';
 // const url_api = 'http://localhost:3003';
 let textArray=[];
 let sound_ok = new Audio("sound-ok.mp3"); // đường dẫn file âm thanh
@@ -135,7 +135,7 @@ record_button.onclick = async function () {
 
         try {
           console.log(">> Gửi audio lên server...");
-          const res = await fetch("https://voice-recognize.onrender.com/stt", {
+          const res = await fetch("https://voice-recognize-wj0u.onrender.com/stt", {
             method: "POST",
             body: formData
           });
