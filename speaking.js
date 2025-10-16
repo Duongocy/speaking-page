@@ -3,12 +3,27 @@ const lesson_list_container = document.getElementById('lessonListContainer');
 const record_button=document.getElementById('recordButton');
 const text_from_voice=document.getElementById('recordText');
 const record_button_container = document.getElementById('recordButtonContainer');
-const url_api = 'https://english-learning-api-jci9.onrender.com';
+const url_api = 'https://english-learning-api-05ih.onrender.com';
 // const url_api = 'http://localhost:3003';
 let textArray=[];
 let sound_ok = new Audio("sound-ok.mp3"); // đường dẫn file âm thanh
 let sound_ng = new Audio("sound-ng.mp3"); // đường dẫn file âm thanh
-load_lesson_list_from_database();
+let danh_sach_lop_hoc =[
+  {lop:'03',ten_lop:'Lớp 01'},
+  {lop:'03',ten_lop:'Lớp 02'},
+  {lop:'03',ten_lop:'Lớp 03'},
+  {lop:'04',ten_lop:'Lớp 04'},
+  {lop:'05',ten_lop:'Lớp 05'},
+  {lop:'06',ten_lop:'Lớp 06'},
+  {lop:'06',ten_lop:'Lớp 07'},
+  {lop:'06',ten_lop:'Lớp 08'},
+  {lop:'06',ten_lop:'Lớp 09'},
+  {lop:'06',ten_lop:'Lớp 10'},
+  {lop:'06',ten_lop:'Lớp 11'},
+  {lop:'06',ten_lop:'Lớp 12'},
+]
+display_class_list(danh_sach_lop_hoc, 10,'lesson-item');
+// load_lesson_list_from_database('Lớp 03');
 
     
 function display_practice_list(data, delay,classname) {
@@ -48,7 +63,31 @@ function display_lesson_list(data, delay,classname) {
           lesson_list_container.appendChild(div);          
         }, index * delay);
       });
-    }    
+    }
+ ///hiện danh sách các lớp để học viên chọn trước
+function display_class_list(data, delay,classname) {
+      lesson_list_container.innerHTML = ""
+      data.forEach((element, index) => {
+        setTimeout(() => {
+          const div = document.createElement('div');
+          div.className = classname;
+          div.style.animationDelay = `${index * 0.1}s`; // nhỏ delay cho mượt
+          div.textContent = element.ten_lop;
+          // thêm sự kiện click
+          div.addEventListener("click", () => {
+            textArray=[];
+            // xóa active của tất cả div trong lesson_list_container
+              lesson_list_container.querySelectorAll("." + classname).forEach(el => {
+                el.classList.remove("active");
+              });
+            // thêm active cho div vừa click
+              div.classList.add("active");
+              load_lesson_list_from_database(element.ten_lop);
+          });
+          lesson_list_container.appendChild(div);          
+        }, index * delay);
+      });
+    }       
 async function load_practice_from_database(lessonId){
   let request_string = url_api+'/Invoice?yeucau=wordsentencelist';
     fetch(request_string, {
@@ -74,8 +113,8 @@ async function load_practice_from_database(lessonId){
         console.error('Error:', error.message); // In ra thông điệp lỗi
     });
 }
-async function load_lesson_list_from_database(){
-    let request_string = url_api+'/Invoice?yeucau=lessonlist';
+async function load_lesson_list_from_database(topic){
+    let request_string = `${url_api}/Invoice?yeucau=lessonlist&topic=${topic}`;
     fetch(request_string, {
         method: 'GET',
         headers: {
@@ -250,4 +289,3 @@ function speak(text) {
 
 let audioContext, analyser, source, dataArray;
 let rippleInterval;
-
