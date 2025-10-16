@@ -22,6 +22,7 @@ let danh_sach_lop_hoc =[
   {lop:'06',ten_lop:'Lớp 11'},
   {lop:'06',ten_lop:'Lớp 12'},
 ]
+let so_lan_click=true;
 display_class_list(danh_sach_lop_hoc, 10,'lesson-item');
 // load_lesson_list_from_database('Lớp 03');
 
@@ -35,7 +36,8 @@ function display_practice_list(data, delay,classname) {
           div.style.animationDelay = `${index * 0.1}s`; // nhỏ delay cho mượt
           div.textContent = element.word_sentence +' -- '+element.vi;
           div.addEventListener("click", function () { 
-            speak(element.word_sentence);
+            if (so_lan_click){speak(element.word_sentence,0.9); so_lan_click=false;console.log(so_lan_click);}
+            else {speak(element.word_sentence,0.3);so_lan_click=true;console.log(so_lan_click);}            
         })
           practice_container.appendChild(div);
         }, index * delay);
@@ -90,6 +92,7 @@ function display_class_list(data, delay,classname) {
     }       
 async function load_practice_from_database(lessonId){
   let request_string = url_api+'/Invoice?yeucau=wordsentencelist';
+  so_lan_click=true;
     fetch(request_string, {
         method: 'POST',
         headers: {
@@ -279,10 +282,10 @@ function kiem_tra_ket_qua_doc(parentId, text) {
       }
     });
   }
-function speak(text) {
+function speak(text,tocdo) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "en-US"; // chọn tiếng Anh Mỹ
-    utterance.rate = 0.9;     // đọc hơi chậm lại
+    utterance.rate = tocdo;     // đọc hơi chậm lại
     utterance.pitch = 1.2;    // giọng cao một xíu
     speechSynthesis.speak(utterance);
 }
