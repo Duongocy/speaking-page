@@ -155,7 +155,9 @@ body{
   pointer-events: none;
   /* animation: rippleAnim 1s linear forwards; */
 }
-
+.loading_class{
+  color: aqua;
+}
 @keyframes rippleAnim {
   to {
     transform: translate(-50%, -50%) scale(2.5);

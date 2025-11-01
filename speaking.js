@@ -62,6 +62,7 @@ function display_lesson_list(data, delay,classname) {
               });
             // thêm active cho div vừa click
               div.classList.add("active");
+              showLoading(practice_container,"loading_class","Loading word and sentence...");
               load_practice_from_database(element.lesson_id);
           });
           lesson_list_container.appendChild(div);          
@@ -85,8 +86,9 @@ function display_class_list(data, delay,classname) {
               //   el.classList.remove("active");
               // });
               lesson_list_container.innerHTML = ""
+              showLoading(lesson_list_container,"loading_class","Loading lesion list...");
             // thêm active cho div vừa click
-              div.classList.add("active");
+              // div.classList.add("active");
               load_lesson_list_from_database(element.ten_lop);
           });
           lesson_list_container.appendChild(div);          
@@ -292,6 +294,10 @@ function speak(text,tocdo) {
     utterance.pitch = 1.2;    // giọng cao một xíu
     speechSynthesis.speak(utterance);
 }
-
+//hàm hiển thị chữ loading 
+function showLoading(element,classname,textdisplay) {
+  element.innerText=textdisplay;
+  element.classList.add(classname);
+}
 let audioContext, analyser, source, dataArray;
 let rippleInterval;
