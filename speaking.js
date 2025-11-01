@@ -9,20 +9,22 @@ let textArray=[];
 let sound_ok = new Audio("sound-ok.mp3"); // đường dẫn file âm thanh
 let sound_ng = new Audio("sound-ng.mp3"); // đường dẫn file âm thanh
 let danh_sach_lop_hoc =[
-  {lop:'03',ten_lop:'Lớp 01'},
-  {lop:'03',ten_lop:'Lớp 02'},
+  // {lop:'01',ten_lop:'Lớp 01'},
+  {lop:'02',ten_lop:'Lớp 02'},
   {lop:'03',ten_lop:'Lớp 03'},
   {lop:'04',ten_lop:'Lớp 04'},
   {lop:'05',ten_lop:'Lớp 05'},
   {lop:'06',ten_lop:'Lớp 06'},
-  {lop:'06',ten_lop:'Lớp 07'},
-  {lop:'06',ten_lop:'Lớp 08'},
-  {lop:'06',ten_lop:'Lớp 09'},
-  {lop:'06',ten_lop:'Lớp 10'},
-  {lop:'06',ten_lop:'Lớp 11'},
-  {lop:'06',ten_lop:'Lớp 12'},
+  // {lop:'07',ten_lop:'Lớp 07'},
+  // {lop:'08',ten_lop:'Lớp 08'},
+  // {lop:'09',ten_lop:'Lớp 09'},
+  // {lop:'10',ten_lop:'Lớp 10'},
+  // {lop:'11',ten_lop:'Lớp 11'},
+  // {lop:'12',ten_lop:'Lớp 12'},
 ]
 let so_lan_click=true;
+
+//hiển thị danh sách các lớp
 display_class_list(danh_sach_lop_hoc, 10,'lesson-item');
 // load_lesson_list_from_database('Lớp 03');
 
@@ -79,9 +81,10 @@ function display_class_list(data, delay,classname) {
           div.addEventListener("click", () => {
             textArray=[];
             // xóa active của tất cả div trong lesson_list_container
-              lesson_list_container.querySelectorAll("." + classname).forEach(el => {
-                el.classList.remove("active");
-              });
+              // lesson_list_container.querySelectorAll("." + classname).forEach(el => {
+              //   el.classList.remove("active");
+              // });
+              lesson_list_container.innerHTML = ""
             // thêm active cho div vừa click
               div.classList.add("active");
               load_lesson_list_from_database(element.ten_lop);
@@ -110,7 +113,7 @@ async function load_practice_from_database(lessonId){
         console.log("Word sentence list nè : ",data);
         textArray = data.map(item => item.word_sentence);
         console.log("Danh sách câu : ",textArray);
-        display_practice_list(data,100,'practice-item');
+        display_practice_list(data,1,'practice-item');
     })
     .catch(function(error) {
         console.error('Error:', error.message); // In ra thông điệp lỗi
@@ -135,7 +138,7 @@ async function load_lesson_list_from_database(topic){
         /////////////////////////////////////////////
         // textArray = data.map(item => item.lesson_title);
         // console.log(textArray);
-        display_lesson_list(data,100,'lesson-item');
+        display_lesson_list(data,1,'lesson-item');
     })
     .catch(function(error) {
         console.error('Error:', error.message); // In ra thông điệp lỗi
