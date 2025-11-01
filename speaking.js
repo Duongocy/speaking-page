@@ -155,6 +155,7 @@ let isRecording = false;
 // Khi nhấn nút
 record_button.onclick = async function () {
   console.log("===> record_button clicked, isRecording:", isRecording);
+  showLoading(text_from_voice,"loading_class","Lisenning...");
 
   if (!isRecording) {
     // ---- START RECORD ----
@@ -174,6 +175,7 @@ record_button.onclick = async function () {
       // Khi stop
       mediaRecorder.onstop = async () => {
         console.log(">> Ghi âm dừng, tạo blob...");
+        showLoading(text_from_voice,"loading_class","Analyzing...");
         const blob = new Blob(chunks, { type: "audio/webm" });
         chunks = [];
 
