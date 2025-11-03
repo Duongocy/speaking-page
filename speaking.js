@@ -3,8 +3,10 @@ const lesson_list_container = document.getElementById('lessonListContainer');
 const record_button=document.getElementById('recordButton');
 const text_from_voice=document.getElementById('recordText');
 const record_button_container = document.getElementById('recordButtonContainer');
+const score_number = document.getElementById('scoreNumber');
 const url_api = 'https://english-learning-api-05ih.onrender.com';
 // const url_api = 'http://localhost:3003';
+let score = 0;
 let textArray=[];
 let sound_ok = new Audio("sound-ok.mp3"); // đường dẫn file âm thanh
 let sound_ng = new Audio("sound-ng.mp3"); // đường dẫn file âm thanh
@@ -286,8 +288,11 @@ function kiem_tra_ket_qua_doc(parentId, text) {
         setTimeout(() => child.remove(), 500); // delay bằng transition
         sound_ok.play();
         confirm = false;
+        score_number.textContent=score.toString();
       }
     });
+    if (confirm){score=score-5;} else {score=score+20;}  
+    score_number.textContent=score.toString();
   }
 function speak(text,tocdo) {
     const utterance = new SpeechSynthesisUtterance(text);
