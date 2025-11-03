@@ -281,7 +281,7 @@ function kiem_tra_ket_qua_doc(parentId, text) {
     const children = parent.querySelectorAll("div");
     let confirm=true;
     children.forEach(child => {
-      if (child.textContent.split("--")[0].trim() === text&&confirm) {
+      if (child.textContent.split("--")[0].trim().toLowerCase() === text.toLowerCase()&&confirm) {
         child.classList.add("fade-out");
         setTimeout(() => child.remove(), 500); // delay bằng transition
         sound_ok.play();
