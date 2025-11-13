@@ -11,7 +11,7 @@ let textArray=[];
 let sound_ok = new Audio("sound-ok.mp3"); // đường dẫn file âm thanh
 let sound_ng = new Audio("sound-ng.mp3"); // đường dẫn file âm thanh
 let danh_sach_lop_hoc =[
-  // {lop:'01',ten_lop:'Lớp 01'},
+  {lop:'01',ten_lop:'Lớp 01'},
   {lop:'02',ten_lop:'Lớp 02'},
   {lop:'03',ten_lop:'Lớp 03'},
   {lop:'04',ten_lop:'Lớp 04'},
